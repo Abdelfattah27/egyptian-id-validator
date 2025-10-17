@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  # ------------------------------
+  # Django Application (API Server)
+  # ------------------------------
+  web:
+    build: ./id_api
+    container_name: national_id_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./id_api:/app 
+      - ./id_api/staticfiles:/app/staticfiles
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+             
+    # command: gunicorn --bind 0.0.0.0:8000 --workers 4 id_api.wsgi:application
+
+  # ------------------------------
+  # PostgreSQL Database
+  # ------------------------------
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # ------------------------------
+  # Redis (for caching + Celery broker)
+  # ------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+
+  # ------------------------------
+  # Celery Worker
+  # ------------------------------
+  celery:
+    build: ./id_api
+    container_name: celery_worker
+    command: poetry run celery -A id_api worker -l info
+    working_dir: /app/id_api
+    depends_on:
+      - redis
+      - db
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+
+# ------------------------------
+# Named Volumes
+# ------------------------------
+volumes:
+  postgres_data:
