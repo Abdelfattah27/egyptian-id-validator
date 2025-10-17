@@ -1,4 +1,3 @@
-```markdown
 # Egyptian National ID Validator API
 
 A robust, production-ready REST API for validating Egyptian National IDs and extracting personal information. Built with Django REST Framework, this service provides secure, scalable validation with comprehensive logging and rate limiting.
@@ -43,7 +42,7 @@ Validate an Egyptian National ID and extract personal information.
 ```http
 X-API-Key: your_api_key_here
 Content-Type: application/json
-```
+
 
 **Request Body:**
 ```json
