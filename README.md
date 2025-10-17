@@ -14,7 +14,8 @@ A robust, production-ready REST API for validating Egyptian National IDs and ext
 
 ## 🏗️ System Architecture
 
-![System Architecture Diagram](docs/images/system-architecture.png)
+
+![API System Architecture](./docs/system_arch_.png)
 
 The system follows a microservices-inspired architecture with clear separation of concerns:
 
@@ -42,7 +43,6 @@ Validate an Egyptian National ID and extract personal information.
 ```http
 X-API-Key: your_api_key_here
 Content-Type: application/json
-
 
 **Request Body:**
 ```json
@@ -109,12 +109,6 @@ Generate a new API key with customizable quotas.
 The sequence diagram illustrates the complete flow of a validation request:
 
 ![API Sequence Diagram](./docs/sequence_diagram_.png)
-
-## 🔄 System  Architecture 
-
-The sequence diagram illustrates the architecture of the system:
-
-![API System Architecture](./docs/system_arch_.png)
 
 
 ## 🛠️ Installation & Setup
