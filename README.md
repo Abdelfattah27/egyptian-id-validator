@@ -4,15 +4,15 @@ A robust, production-ready REST API for validating Egyptian National IDs and ext
 
 ## 🚀 Features
 
-- **🔒 Secure Validation**: Comprehensive Egyptian National ID validation with checksum verification
-- **📊 Data Extraction**: Parse birth date, gender, governorate, and age from ID numbers
-- **🔑 API Key Authentication**: Secure service-to-service authentication with customizable quotas
-- **⚡ Rate Limiting**: Dual-layer throttling (per-minute and per-day) with Redis-backed counters
-- **📝 Request Logging**: Comprehensive audit trail with async processing
-- **🌐 Arabic Support**: Automatic normalization of Arabic numerals
-- **🐳 Docker Ready**: Containerized deployment with Docker and Docker Compose
+- **Secure Validation**: Comprehensive Egyptian National ID validation with checksum verification
+- **Data Extraction**: Parse birth date, gender, governorate, and age from ID numbers
+- **API Key Authentication**: Secure service-to-service authentication with customizable quotas
+- **Rate Limiting**: Dual-layer throttling (per-minute and per-day) with Redis-backed counters
+- **Request Logging**: Comprehensive audit trail with async processing
+- **Arabic Support**: Automatic normalization of Arabic numerals
+- **Docker Ready**: Containerized deployment with Docker and Docker Compose
 
-## 🏗️ System Architecture
+## System Architecture
 
 
 ![API System Architecture](./docs/system_arch_.png)
@@ -35,7 +35,7 @@ Clients → Django REST API → Redis Cache → PostgreSQL Database
 ## 📋 API Endpoints
 
 ### 1. Validate National ID
-**POST** `/api/v1/validate-id/`
+**POST** `/api/v1/validate/`
 
 Validate an Egyptian National ID and extract personal information.
 
@@ -72,7 +72,7 @@ Content-Type: application/json
 ```
 
 ### 2. Create API Key
-**POST** `/api/v1/get_api_key/`
+**POST** `/api/v1/api-keys/`
 
 Generate a new API key with customizable quotas.
 
@@ -94,8 +94,8 @@ Generate a new API key with customizable quotas.
         "name": "My Application",
         "key": "wyHTU39bmvbmvAQvIOT_hSA0hJhffyqQhhVDg-1ydXs",
         "created_at": "2025-10-17T19:09:59.900288Z",
-        "quota_requests_per_minute": 60,
-        "quota_requests_per_day": 1000,
+        "quota_requests_per_minute": 10,
+        "quota_requests_per_day": 100,
         "metadata": {}
     }
 }
@@ -142,8 +142,8 @@ The sequence diagram illustrates the complete flow of a validation request:
    ```
 
 5. **Access the API**
-   - Craete API Key: `http://localhost:8000/api/v1/get_api_key/`
-   - API Base URL: `http://localhost:8000/api/v1/validate-id/`
+   - Craete API Key: `http://localhost:8000/api/v1/api-keys/`
+   - API Base URL: `http://localhost:8000/api/v1/validate/`
    - API Documentation: `http://localhost:8000/swagger/`
 
 ### Service Ports
@@ -188,8 +188,8 @@ CELERY_RESULT_BACKEND=redis://redis:6379/0
 REDIS_CACHE_LOCATION=redis://redis:6379/1
 
 # Throttling Rates
-DEFAULT_THROTTLE_RATE=60/minute
-DEFAULT_THROTTLE_RATE_DAILY=1000/day
+DEFAULT_THROTTLE_RATE=10/minute
+DEFAULT_THROTTLE_RATE_DAILY=100/day
 ```
 
 ### National ID Validation Rules

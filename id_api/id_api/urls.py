@@ -35,7 +35,7 @@ schema_view = get_schema_view(
         
         ## Getting Started
         
-        1. Create an API key using the `/api/v1/get_api_key/` endpoint
+        1. Create an API key using the `/api/v1/api-keys/` endpoint
         2. Use the API key in the `X-API-KEY` header for validation requests
         """,
         contact=openapi.Contact(email="abdelfattah.hamdy234@gmail.com"),

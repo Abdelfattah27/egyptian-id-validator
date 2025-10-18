@@ -30,8 +30,8 @@ class TestDataFactory:
         """Create a test API key with consistent defaults"""
         defaults = {
             'name': 'Test API Key',
-            'quota_requests_per_minute': 60,
-            'quota_requests_per_day': 1000
+            'quota_requests_per_minute': 10,
+            'quota_requests_per_day': 100
         }
         defaults.update(kwargs)
         

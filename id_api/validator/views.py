@@ -2,15 +2,40 @@ import time
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import generics, status
-from .serializers import ValidateIDRequestSerializer, ValidateIDResponseSerializer , APIKeyCreateSerializer 
+from .serializers import ValidateIDRequestSerializer, ValidateIDResponseSerializer , APIKeyCreateSerializer  , IDValidationLogSerializer
 from .helper import EgyptianIDValidator
 from .tasks import log_validation_task  
 from .throttling import APIKeyRateThrottle , DailyAPIKeyThrottle 
-from .models import APIKey 
+from .models import APIKey , IDValidationLog
 from .authentication import APIKeyAuthentication
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .swagger_schema import api_key_create_response ,validate_id_request_body ,validation_success_response , unauthorized_response, bad_request_response, throttled_response ,api_key_create_request_body
+from rest_framework.pagination import LimitOffsetPagination
+from .swagger_schema import (
+    validate_id_decorator,
+    api_key_create_decorator, 
+    validation_logs_decorator
+)
+
+class ValidationLogPagination(LimitOffsetPagination):
+    """
+    Custom pagination for validation logs
+    """
+    default_limit = 10
+    max_limit = 100
+    limit_query_param = 'limit'
+    offset_query_param = 'offset'
+    
+    
+class IDValidationLogAPIView(generics.ListAPIView) : 
+    queryset = IDValidationLog.objects.all().order_by("-created_at")
+    serializer_class = IDValidationLogSerializer
+    pagination_class = ValidationLogPagination
+    
+    @validation_logs_decorator
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 class ValidateIDView(APIView):
     """
@@ -20,39 +45,7 @@ class ValidateIDView(APIView):
     authentication_classes = [APIKeyAuthentication]
     
     
-    @swagger_auto_schema(
-        operation_description="""
-        Validate an Egyptian National ID number.
-        
-        The Egyptian National ID consists of 14 digits with the following structure:
-        - Century/Birth Year (digits 1-2): 2 for 1900s, 3 for 2000s
-        - Birth Date (digits 3-7): YYMMDD format
-        - Governorate Code (digits 8-9): 2-digit code representing birthplace
-        - Serial Number (digits 10-13): Unique serial number
-        - Check Digit (digit 14): Luhn algorithm validation digit
-        
-        **Authentication**: Requires valid API key in X-API-KEY header
-        **Rate Limits**: Configurable per API key (default: 10/min, 1000/day)
-        """,
-        operation_summary="Validate Egyptian National ID",
-        request_body=validate_id_request_body,
-        manual_parameters=[
-            openapi.Parameter(
-                'X-API-KEY',
-                openapi.IN_HEADER,
-                description="API Key for authentication",
-                type=openapi.TYPE_STRING,
-                required=True
-            )
-        ],
-        responses={
-            200: validation_success_response,
-            400: bad_request_response,
-            403: unauthorized_response,
-            429: throttled_response
-        },
-        tags=['Validation']
-    )
+    @validate_id_decorator
     def post(self, request):
         start_time = time.time()
         
@@ -213,21 +206,7 @@ class APIKeyCreateView(generics.CreateAPIView):
     serializer_class = APIKeyCreateSerializer
     permission_classes = []
     
-    @swagger_auto_schema(
-        operation_description="""
-        Create a new API key for accessing the validation service.
-        
-        **Important**: The API key will only be shown once upon creation. 
-        Store it securely as it cannot be retrieved again.
-        """,
-        operation_summary="Create API Key",
-        request_body=api_key_create_request_body,
-        responses={
-            201: api_key_create_response,
-            400: bad_request_response
-        },
-        tags=['API Keys']
-    )
+    @api_key_create_decorator
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)

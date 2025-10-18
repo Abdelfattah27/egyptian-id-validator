@@ -154,9 +154,9 @@ REST_FRAMEWORK = {
     ],
    
     'DEFAULT_THROTTLE_RATES': {
-        'api_key': os.getenv('DEFAULT_THROTTLE_RATE', '60/minute'),
-        'api_key_daily': os.getenv('DEFAULT_THROTTLE_RATE_DAILY', '1000/day'),
-    }
+        'api_key': os.getenv('DEFAULT_THROTTLE_RATE', '10/minute'),
+        'api_key_daily': os.getenv('DEFAULT_THROTTLE_RATE_DAILY', '100/day'),
+    } 
 }
 
 
