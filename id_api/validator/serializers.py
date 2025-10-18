@@ -43,7 +43,6 @@ class APIKeyCreateSerializer(serializers.ModelSerializer):
         if key_value:
             api_key.set_key(key_value)
         else:
-            # Generate a random key if not provided
             import secrets
             key_value = secrets.token_urlsafe(32)
             api_key.set_key(key_value)

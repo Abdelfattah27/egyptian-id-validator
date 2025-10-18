@@ -1,6 +1,51 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+
+
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Egyptian National ID Validator API",
+        default_version='v1',
+        description="""
+        A comprehensive API for validating and parsing Egyptian National ID numbers.
+        
+        ## Features
+        
+        - **ID Validation**: Validate Egyptian National IDs against official format
+        - **Data Extraction**: Extract birth date, gender, governorate from valid IDs
+        - **Rate Limiting**: Configurable request limits per API key
+        - **Comprehensive Logging**: Detailed audit trail of all validations
+        
+        ## Authentication
+        
+        This API uses API Key authentication. Include your API key in the `X-API-KEY` header.
+        
+        ## National ID Format
+        
+        Egyptian National IDs consist of 14 digits:
+        - **Digits 1-2**: Century code (2=1900s, 3=2000s)
+        - **Digits 3-7**: Birth date in YYMMDD format
+        - **Digits 8-9**: Governorate code
+        - **Digits 10-13**: Serial number
+        - **Digit 14**: Check digit (Luhn algorithm)
+        
+        ## Getting Started
+        
+        1. Create an API key using the `/api/v1/api-keys/` endpoint
+        2. Use the API key in the `X-API-KEY` header for validation requests
+        """,
+        contact=openapi.Contact(email="abdelfattah.hamdy234@gmail.com"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
+
+
 
 # =============================================================================
 # COMMON PARAMETERS
@@ -301,7 +346,6 @@ api_key_create_response = openapi.Response(
                     'id': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_UUID),
                     'name': openapi.Schema(type=openapi.TYPE_STRING),
                     'key': openapi.Schema(type=openapi.TYPE_STRING, description='The actual API key - store this securely!'),
-                    'prefix': openapi.Schema(type=openapi.TYPE_STRING, description='Key prefix for identification'),
                     'created_at': openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_DATETIME),
                     'quota_requests_per_minute': openapi.Schema(type=openapi.TYPE_INTEGER),
                     'quota_requests_per_day': openapi.Schema(type=openapi.TYPE_INTEGER),
@@ -317,7 +361,6 @@ api_key_create_response = openapi.Response(
                 "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
                 "name": "My Application",
                 "key": "raw_api_key_value_here",
-                "prefix": "prefix123",
                 "created_at": "2024-01-15T10:30:00Z",
                 "quota_requests_per_minute": 100,
                 "quota_requests_per_day": 5000,

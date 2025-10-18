@@ -16,12 +16,8 @@ services:
       - .env
     depends_on:
       - db
-      - redis
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
-             
-    # command: gunicorn --bind 0.0.0.0:8000 --workers 4 id_api.wsgi:application
+      - redis       
+    command: gunicorn --bind 0.0.0.0:8000 --workers 4 id_api.wsgi:application
 
   # ------------------------------
   # PostgreSQL Database
@@ -38,7 +34,7 @@ services:
       - "5432:5432"
 
   # ------------------------------
-  # Redis (for caching + Celery broker)
+  # Redis 
   # ------------------------------
   redis:
     image: redis:7-alpine

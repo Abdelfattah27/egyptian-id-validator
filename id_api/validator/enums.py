@@ -48,7 +48,6 @@ CENTURY_MAP = {
 
 
 class IDValidationError(Enum):
-    """Structured error codes for ID validation"""
     ERR_INVALID_LENGTH = "invalid_length"
     ERR_INVALID_CHARACTERS = "invalid_characters"
     ERR_UNKNOWN_CENTURY = "unknown_century"

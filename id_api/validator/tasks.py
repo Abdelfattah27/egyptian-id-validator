@@ -8,6 +8,7 @@ def log_validation_task(self, api_key_id, endpoint, method, status_code, respons
     """
     Celery task to log validation results to database
     """
+    print(api_key_id)
     try:
         IDValidationLog.objects.create(
             api_key_id=api_key_id,
@@ -21,5 +22,4 @@ def log_validation_task(self, api_key_id, endpoint, method, status_code, respons
             response_data=response_data
         )
     except Exception as exc:
-        # Retry the task after 30 seconds if it fails
         raise self.retry(countdown=30, exc=exc)

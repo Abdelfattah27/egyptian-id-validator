@@ -10,17 +10,11 @@ logger = logging.getLogger(__name__)
 
 
 class APIKeyAuthentication(authentication.BaseAuthentication):
-    """
-    Simple API Key authentication
-    """
     
     header = 'X-API-Key'
-    
 
     def get_api_key_data(self, api_key_value):
-        """
-        Get API key data from cache or database with Redis caching
-        """
+
         if not api_key_value:
             raise exceptions.ValidationError(_('Invalid API key.'))
         
@@ -28,8 +22,6 @@ class APIKeyAuthentication(authentication.BaseAuthentication):
         
         api_key_data = cache.get(cache_key)
         if api_key_data is None:
-            
-            # Fetch from database
             
             api_key_prefix = api_key_value[:8]
             active_keys = APIKey.objects.filter(revoked=False , prefix_key = api_key_prefix ).defer("created_at" , 'revoked' , 'metadata' , 'last_used_at' )
@@ -44,7 +36,6 @@ class APIKeyAuthentication(authentication.BaseAuthentication):
             
             raise exceptions.ValidationError(_('Invalid API key.'))
             
-        
         return api_key_data
 
     
@@ -59,18 +50,16 @@ class APIKeyAuthentication(authentication.BaseAuthentication):
         except exceptions.ValidationError as e:
             raise exceptions.AuthenticationFailed(e.detail)
         
-        # Create a simple user-like object
         user = APIUser(api_key_obj)
         return (user, None)
     
     def get_api_key(self, request):
-        """Extract API key from request headers"""
         return request.headers.get(self.header, '').strip()
 
 
 class APIUser:
     """
-    Simple user-like object for API key authentication
+    user-like object for API key authentication
     """
     
     def __init__(self, api_key):

@@ -36,10 +36,6 @@ class APIKey(models.Model):
     def is_active(self):
         return not self.revoked
     
-    @property
-    def prefix(self):
-        """Return the key prefix for identification"""
-        return str(self.id)[:8]
 
 class IDValidationLog(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

@@ -40,10 +40,10 @@ Clients → Django REST API → Redis Cache → PostgreSQL Database
 Validate an Egyptian National ID and extract personal information.
 
 **Headers:**
-```http
+```yml
 X-API-Key: your_api_key_here
 Content-Type: application/json
-
+```
 **Request Body:**
 ```json
 {
@@ -126,22 +126,17 @@ The sequence diagram illustrates the complete flow of a validation request:
    cd egyptian-id-validator
    ```
 
-2. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-
-3. **Build and start services**
+2. **Build and start services**
    ```bash
    docker-compose up -d --build
    ```
 
-4. **Run migrations**
+3. **Run migrations**
    ```bash
    docker-compose exec web python manage.py migrate
    ```
 
-5. **Access the API**
+4. **Access the API**
    - Craete API Key: `http://localhost:8000/api/v1/api-keys/`
    - API Base URL: `http://localhost:8000/api/v1/validate/`
    - API Documentation: `http://localhost:8000/swagger/`

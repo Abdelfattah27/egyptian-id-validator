@@ -13,7 +13,6 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',')
 
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -61,7 +60,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'id_api.wsgi.application'
 
 
-# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -71,26 +69,6 @@ DATABASES = {
         'HOST': os.getenv('POSTGRES_HOST', 'db'),
         'PORT': os.getenv('POSTGRES_PORT', '5432'),
     }
-}
-
-# Swagger settings
-
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'API Key': {
-            'type': 'apiKey',
-            'name': 'X-API-KEY',
-            'in': 'header'
-        }
-    },
-    'USE_SESSION_AUTH': False,
-    'JSON_EDITOR': True,
-    'DEFAULT_INFO': 'your_app.urls.schema_view',  # Update with your actual path
-}
-
-REDOC_SETTINGS = {
-    'LAZY_RENDERING': False,
-    'HIDE_HOSTNAME': False,
 }
 
 
@@ -103,22 +81,17 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Additional locations of static files
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'mediafiles'
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Celery Configuration
+
+
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis:6379/0')
 CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
 CELERY_ACCEPT_CONTENT = ['json']
@@ -126,15 +99,16 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = os.getenv('CELERY_TIMEZONE', 'Africa/Cairo')
 
-# Cache Configuration
+
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': os.getenv('REDIS_CACHE_LOCATION', 'redis://redis:6379/1'),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'SOCKET_CONNECT_TIMEOUT': 5,  # seconds
-            'SOCKET_TIMEOUT': 5,  # seconds
+            'SOCKET_CONNECT_TIMEOUT': 5,  
+            'SOCKET_TIMEOUT': 5, 
             'RETRY_ON_TIMEOUT': True,
             'MAX_CONNECTIONS': 1000,
         },
@@ -142,12 +116,6 @@ CACHES = {
     }
 }
 
-
-# Use Redis for session storage (optional)
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
-
-# DRF Throttling settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         

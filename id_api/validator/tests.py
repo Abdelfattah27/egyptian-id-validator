@@ -87,7 +87,7 @@ class EgyptianIDValidatorUnitTests(TestCase):
         is_valid, errors, parsed_data = EgyptianIDValidator.validate_and_parse(ARABIC_DIGITS_ID)
         
         self.assertTrue(is_valid)
-        self.assertEqual(parsed_data['raw'], VALID_ID)  # Should be normalized
+        self.assertEqual(parsed_data['raw'], VALID_ID)  
 
     # -------------------------------------------------------------------------
     # Negative Test Cases - Format Validation
@@ -104,12 +104,10 @@ class EgyptianIDValidatorUnitTests(TestCase):
         self.assertIsNone(parsed_data)
 
     def test_all_zeros_id(self):
-        """Test ID with all zeros"""
         is_valid, errors, parsed_data = EgyptianIDValidator.validate_and_parse("0" * 14)
         self.assertFalse(is_valid)
 
     def test_sequential_numbers_id(self):
-        """Test ID with sequential numbers"""
         is_valid, errors, parsed_data = EgyptianIDValidator.validate_and_parse("12345678901234")
         self.assertFalse(is_valid)
 
@@ -118,7 +116,6 @@ class EgyptianIDValidatorUnitTests(TestCase):
     # -------------------------------------------------------------------------
     
     def test_invalid_century(self):
-        """Test validation failure for an unknown century code."""
         invalid_century_id = "19001012100018"
         is_valid, errors, parsed_data = EgyptianIDValidator.validate_and_parse(
             invalid_century_id, strict_checksum=False
@@ -128,7 +125,6 @@ class EgyptianIDValidatorUnitTests(TestCase):
         self.assertIn(IDValidationError.ERR_UNKNOWN_CENTURY.value, errors)
 
     def test_invalid_date(self):
-        """Test validation failure for an impossible date (e.g., Feb 30th)."""
         invalid_date_id = "29002302100018"
         is_valid, errors, parsed_data = EgyptianIDValidator.validate_and_parse(
             invalid_date_id, strict_checksum=False
@@ -138,7 +134,6 @@ class EgyptianIDValidatorUnitTests(TestCase):
         self.assertIn(IDValidationError.ERR_INVALID_DATE.value, errors)
 
     def test_future_date_validation(self):
-        """Test ID with future birth date"""
         future_id = "32601012100018"
         is_valid, errors, parsed_data = EgyptianIDValidator.validate_and_parse(future_id)
         
@@ -156,7 +151,6 @@ class EgyptianIDValidatorUnitTests(TestCase):
         self.assertIn(IDValidationError.ERR_UNKNOWN_GOVERNORATE.value, errors)
 
     def test_checksum_failure_strict(self):
-        """Test validation failure when strict_checksum=True and checksum is wrong."""
         is_valid, errors, parsed_data = EgyptianIDValidator.validate_and_parse(
             INVALID_CHECKSUM_ID, strict_checksum=True
         )
@@ -225,13 +219,11 @@ class ValidateIDViewAuthenticationTests(APITestCase):
     # -------------------------------------------------------------------------
     
     def test_sql_injection_in_api_key_header(self):
-        """Test for SQL injection in API key header"""
         malicious_header = {'HTTP_X_API_KEY': "1' OR '1'='1"}
         response = self.client.post(self.url, self.valid_payload, **malicious_header)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_oversized_api_key_header(self):
-        """Test for buffer overflow in API key processing"""
         oversized_key = 'A' * 10000
         malicious_header = {'HTTP_X_API_KEY': oversized_key}
         response = self.client.post(self.url, self.valid_payload, **malicious_header)
@@ -239,7 +231,6 @@ class ValidateIDViewAuthenticationTests(APITestCase):
 
 
 class ValidateIDViewBusinessLogicTests(APITestCase):
-    """Tests for business logic through API endpoints"""
     
     def setUp(self):
         self.url = reverse('validate-id')
@@ -254,7 +245,6 @@ class ValidateIDViewBusinessLogicTests(APITestCase):
     
     @patch('validator.views.log_validation_task.delay')
     def test_successful_validation(self, mock_task):
-        """Test a successful validation request and check response structure."""
         valid_payload = {'national_id': VALID_ID, 'strict_checksum': False}
         response = self.client.post(
             self.url, valid_payload, format='json', **self.auth_header
@@ -263,7 +253,6 @@ class ValidateIDViewBusinessLogicTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['valid'])
         
-        # Test birth date parsing
         birth_date_response = response.data['parsed']['birth_date']
         if isinstance(birth_date_response, str):
             self.assertEqual(birth_date_response, VALID_DATE.isoformat())
@@ -295,7 +284,6 @@ class ValidateIDViewBusinessLogicTests(APITestCase):
         self.assertFalse(response.data['valid'])
         self.assertIn('Invalid request:', response.data['errors'][0])
 
-        # Verify error logging
         mock_task.assert_called_once()
         call_kwargs = mock_task.call_args[1]
         self.assertEqual(call_kwargs['status_code'], status.HTTP_400_BAD_REQUEST)
@@ -303,7 +291,6 @@ class ValidateIDViewBusinessLogicTests(APITestCase):
 
     @patch('validator.views.log_validation_task.delay')
     def test_validation_failure_invalid_data(self, mock_task):
-        """Test failure due to invalid national ID data"""
         invalid_payload = {'national_id': 'invalid-id-text'}
         response = self.client.post(
             self.url, invalid_payload, format='json', **self.auth_header
@@ -314,7 +301,6 @@ class ValidateIDViewBusinessLogicTests(APITestCase):
 
 
 class ValidateIDViewThrottlingTests(APITestCase):
-    """Tests specifically for rate limiting and throttling"""
     
     def setUp(self):
         self.url = reverse('validate-id')
@@ -334,7 +320,7 @@ class ValidateIDViewThrottlingTests(APITestCase):
     
     @patch('validator.views.log_validation_task.delay')
     def test_rate_limit_enforcement(self, mock_task):
-        """Test that rate limits are properly enforced"""
+        
         # First two requests should succeed
         for i in range(2):
             response = self.client.post(
@@ -352,11 +338,10 @@ class ValidateIDViewThrottlingTests(APITestCase):
         self.assertEqual(mock_task.call_count, 2)
 
     def test_rate_limit_accurate_counting(self):
-        """Test accurate counting of requests against quota"""
         cache.clear()
         
         successful_requests = 0
-        for i in range(10):  # Safe upper bound
+        for i in range(10):  
             response = self.client.post(
                 self.url, self.valid_payload, format='json', **self.auth_header
             )
@@ -364,7 +349,6 @@ class ValidateIDViewThrottlingTests(APITestCase):
                 break
             successful_requests += 1
             
-        # Should be throttled after exactly quota limit
         self.assertEqual(successful_requests, self.api_key.quota_requests_per_minute)
 
 
@@ -373,7 +357,6 @@ class ValidateIDViewThrottlingTests(APITestCase):
 # =============================================================================
 
 class ValidateIDViewPerformanceTests(APITestCase):
-    """Tests for performance and integration aspects"""
     
     def setUp(self):
         self.url = reverse('validate-id')
@@ -382,7 +365,6 @@ class ValidateIDViewPerformanceTests(APITestCase):
         self.valid_payload = {'national_id': VALID_ID, 'strict_checksum': False}
 
     def test_authentication_performance(self):
-        """Test authentication doesn't cause excessive database queries"""
         from django.db import connection
         from django.test.utils import CaptureQueriesContext
         
@@ -391,13 +373,11 @@ class ValidateIDViewPerformanceTests(APITestCase):
                 self.url, self.valid_payload, format='json', **self.auth_header
             )
         
-        # Should not have excessive queries (auth + validation + logging async)
         self.assertLessEqual(len(context), 5)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     @patch('validator.views.log_validation_task.delay')
     def test_response_time_acceptable(self, mock_task):
-        """Test that response times are within acceptable limits"""
         import time
         
         start_time = time.time()
